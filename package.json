@@ -1,40 +1,52 @@
 {
   "name": "geopouch",
-  "version": "2.0.3",
-  "description": "Put some geo in your pouch",
+  "version": "3.0.0",
+  "description": "Put some geo in your pouch - PouchDB v9.0.0 compatible",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/calvinmetcalf/geopouch.git"
   },
   "scripts": {
-    "test": "istanbul test _mocha test/test.js",
+    "test": "mocha test/test.js",
+    "test-coverage": "nyc mocha test/test.js",
     "build": "mkdir -p dist && browserify index.js -s geopouch -o dist/geopouch.js",
-    "build-test": "browserify test/test.js -o test/test-bundle.js"
+    "build-test": "browserify test/test.js -o test/test-bundle.js",
+    "lint": "eslint *.js test/*.js"
   },
   "keywords": [
     "geospatial",
     "pouchdb",
     "pouch",
     "couchdb",
-    "couch"
+    "couch",
+    "spatial",
+    "rtree",
+    "geographic",
+    "gis"
   ],
-  "license": "Apache",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/calvinmetcalf/geopouch/issues"
   },
   "dependencies": {
     "async-rtree": "^1.2.1",
-    "create-hash": "^1.0.2",
-    "geojson-bounding-volume": "^0.2.2",
-    "lie": "^3.1.0"
+    "create-hash": "^1.2.0",
+    "geojson-bounding-volume": "^0.2.2"
   },
   "devDependencies": {
-    "browserify": "^14.1.0",
-    "chai": "^3.5.0",
-    "istanbul": "^0.4.5",
-    "memdown": "^1.0.0",
-    "mocha": "^3.2.0",
-    "pouchdb": "^6.0.0"
+    "browserify": "^17.0.0",
+    "chai": "^4.3.0",
+    "eslint": "^8.0.0",
+    "memdown": "^6.1.1",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "pouchdb": "^9.0.0"
+  },
+  "peerDependencies": {
+    "pouchdb": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }

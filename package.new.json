@@ -1,0 +1,109 @@
+{
+  "name": "geopouch",
+  "version": "2.0.3",
+  "description": "Put some geo in your pouch - Spatial plugin for PouchDB with N dimensional coordinates support",
+  "main": "dist/geopouch.cjs.js",
+  "module": "dist/geopouch.esm.js",
+  "browser": "dist/geopouch.umd.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/geopouch.esm.js",
+      "require": "./dist/geopouch.cjs.js",
+      "browser": "./dist/geopouch.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "index.js",
+    "*.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pouchdb/geopouch.git"
+  },
+  "scripts": {
+    "dev": "vite serve dev",
+    "build": "npm run clean && npm run build:types && npm run build:bundle",
+    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build:bundle": "vite build",
+    "build:legacy": "mkdir -p dist && browserify index.js -s geopouch -o dist/geopouch.legacy.js",
+    "clean": "rimraf dist coverage .nyc_output",
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "vitest run --coverage",
+    "test:browser": "playwright test",
+    "test:watch": "vitest",
+    "test:legacy": "c8 mocha test/test.js --timeout 10000",
+    "lint": "eslint src test --ext .js,.ts --fix",
+    "format": "prettier --write \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"*.{js,ts,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,ts}\" \"test/**/*.{js,ts}\" \"*.{js,ts,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run lint && npm run typecheck && npm run format:check",
+    "ci": "npm run validate && npm run build && npm run test",
+    "release": "np",
+    "size": "bundlephobia ./dist/geopouch.umd.js"
+  },
+  "keywords": [
+    "geospatial",
+    "pouchdb",
+    "pouch",
+    "couchdb",
+    "couch",
+    "spatial",
+    "geo",
+    "rtree",
+    "geojson"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/pouchdb/geopouch/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "async-rtree": "^1.2.1",
+    "create-hash": "^1.2.0",
+    "geojson-bounding-volume": "^0.2.2",
+    "lie": "^3.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "browserify": "^17.0.0",
+    "bundlephobia-cli": "^0.2.0",
+    "c8": "^8.0.1",
+    "chai": "^4.3.10",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "happy-dom": "^12.10.3",
+    "memdown": "^6.1.1",
+    "mocha": "^10.2.0",
+    "np": "^9.2.0",
+    "pouchdb": "^8.0.1",
+    "prettier": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.6.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "pouchdb": ">=6.0.0"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not dead"
+  ]
+}

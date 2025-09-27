@@ -1,11 +1,20 @@
-var Promise = require('lie');
-var RTree = require('async-rtree');
-var calculatebounds = require('geojson-bounding-volume');
-var createView = require('./create-view');
-var Store = require('./store');
-var upsert = require('./upsert');
+const RTree = require('async-rtree');
+const calculatebounds = require('geojson-bounding-volume');
+const createView = require('./create-view');
+const Store = require('./store');
+const upsert = require('./upsert');
 
 exports.spatial = spatial;
+
+/**
+ * Spatial query function for PouchDB
+ * @param {Function|string} fun - Map function or design document reference
+ * @param {Array} bbox - Bounding box coordinates
+ * @param {Object} opts - Query options
+ * @param {Function} cb - Optional callback function
+ * @param {Function} cb2 - Second callback for dual bbox queries
+ * @returns {Promise} Promise resolving to query results
+ */
 function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/cb2) {
   if (bbox.length === 4) {
     bbox = [[bbox[0], bbox[1]], [bbox[2], bbox[3]]];
@@ -15,15 +24,15 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
     opts = cb;
     cb = cb2;
   }
-  var db = this;
-  var viewName, temporary;
+  const db = this;
+  let viewName, temporary;
 
   if (!opts || typeof opts !== 'object') {
     cb = opts;
     opts = {};
   }
-  var store, rawStore;
-  var viewID;
+  let store, rawStore;
+  let viewID;
   return makeFunc(db, fun).then(function (func) {
     if (typeof fun === 'function') {
       viewName = 'temporary';
@@ -32,8 +41,8 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
       viewName = func;
       viewID = '_design/' + fun.split('/')[0];
     }
-    var view = createView(db, viewName, temporary, fun);
-    var updated = view.then(updateIndex(func));
+    const view = createView(db, viewName, temporary, fun);
+    const updated = view.then(updateIndex(func));
     if (opts.stale !== true) {
       return updated;
     } else {
@@ -66,9 +75,9 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
       }
 
       function addDoc(doc) {
-        var id = doc._id;
-        var emited = [];
-        var i = 0;
+        const id = doc._id;
+        const emited = [];
+        let i = 0;
         function emit(doc) {
           if (i++) {
             emited.push(store.append(id, calculatebounds(doc)));
@@ -77,7 +86,7 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
           }
         }
         function fixMulti (doc) {
-          var type = doc.type;
+          const type = doc.type;
           switch (type) {
           case 'MultiPoint':
             return doc.coordinates.forEach(function (coord) {
@@ -109,7 +118,7 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
         func(doc, fixMulti);
         return Promise.all(emited);
       }
-      var lastSeq;
+      let lastSeq;
       return viewDB.get('_local/gclastSeq').catch(function () {
         return {_id: '_local/gclastSeq', last_seq: 0};
       }).then(function (doc) {
@@ -154,8 +163,8 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
   }
   function queryIndex() {
     return new Promise(function (resolve, reject) {
-      var out = {};
-      var promises = [];
+      const out = {};
+      const promises = [];
       store.query(bbox).on('data', function (d) {
         if (d.id in out) {
           out[d.id].bboxen.push(d.bbox);
@@ -183,12 +192,12 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
 function makeFunc (db, fun) {
   return new Promise (function (resolve, reject) {
     if (typeof fun === 'function') {
-      return resolve(new Function ('doc', 'emit', 'var func = (' + fun.toString().replace(/;\s*$/,'') + ');func(doc);'));
+      return resolve(new Function ('doc', 'emit', 'const func = (' + fun.toString().replace(/;\s*$/,'') + ');func(doc);'));
     }
-    var parts = fun.split('/');
+    const parts = fun.split('/');
     resolve(db.get('_design/' + parts[0]).then(function (doc) {
-      var fun = doc.spatial[parts[1]];
-      return new Function ('doc', 'emit', 'var func = (' + fun.replace(/;\s*$/,'') + ');func(doc);');
+      const fun = doc.spatial[parts[1]];
+      return new Function ('doc', 'emit', 'const func = (' + fun.replace(/;\s*$/,'') + ');func(doc);');
     }));
   });
 }

@@ -1,0 +1,35 @@
+services:
+  geopouch-legacy:
+    build:
+      context: .
+      dockerfile: Dockerfile.legacy
+    volumes:
+      - .:/app
+      - node_modules_legacy:/app/node_modules
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+    networks:
+      - geopouch-net
+
+  # Modern Node.js environment for comparison/migration
+  geopouch-modern:
+    image: node:20-bookworm-slim
+    volumes:
+      - .:/app
+      - node_modules_modern:/app/node_modules
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+    networks:
+      - geopouch-net
+    profiles:
+      - modern
+
+volumes:
+  node_modules_legacy:
+  node_modules_modern:
+
+networks:
+  geopouch-net:
+    driver: bridge

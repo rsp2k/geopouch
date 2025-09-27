@@ -1,8 +1,7 @@
 'use strict';
 
-var upsert = require('./upsert');
-var createHash = require('create-hash');
-var Promise = require('lie');
+const upsert = require('./upsert');
+const createHash = require('create-hash');
 
 function hash(string) {
   return createHash('sha224').update(string).digest('hex');
@@ -20,9 +19,9 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
       }
     });
   }
-  var viewSignature = hash(viewCode.toString());
+  const viewSignature = hash(viewCode.toString());
   if (sourceDB._cachedViews) {
-    var cachedView = sourceDB._cachedViews[viewSignature];
+    const cachedView = sourceDB._cachedViews[viewSignature];
     if (cachedView) {
       return Promise.resolve(cachedView);
     }
@@ -30,15 +29,15 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
 
   return sourceDB.info().then(function (info) {
 
-    var depDbName = info.db_name + '-gcview-' + viewSignature;
+    const depDbName = info.db_name + '-gcview-' + viewSignature;
 
     // save the view name in the source PouchDB so it can be cleaned up if necessary
     // (e.g. when the _design doc is deleted, remove all associated view data)
     function diffFunction(doc) {
       doc.views = doc.views || {};
-      var fullViewName = viewSignature;
+      const fullViewName = viewSignature;
 
-      var depDbs = doc.views[fullViewName] = doc.views[fullViewName] || {};
+      const depDbs = doc.views[fullViewName] = doc.views[fullViewName] || {};
       /* istanbul ignore if */
       if (depDbs[depDbName]) {
         return; // no update necessary
@@ -54,9 +53,9 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
     }
     return upsert(sourceDB, '_local/gcviews', diffFunction).then(function () {
       return sourceDB.registerDependentDatabase(depDbName).then(function (res) {
-        var db = res.db;
+        const db = res.db;
         db.auto_compaction = true;
-        var view = {
+        const view = {
           name: depDbName,
           db: db,
           sourceDB: sourceDB,
@@ -69,7 +68,7 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
           }
         }).then(function (lastSeqDoc) {
           view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
-          var viewID;
+          let viewID;
 
           sourceDB._cachedViews = sourceDB._cachedViews || {};
           sourceDB._cachedViews[viewSignature] = view;

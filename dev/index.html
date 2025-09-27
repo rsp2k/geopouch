@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoPouch Development Playground</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #map {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ff6b6b;
+        }
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #51cf66;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 GeoPouch Development Playground</h1>
+
+        <div class="section">
+            <h2>Quick Tests</h2>
+            <div class="controls">
+                <button onclick="loadTestData()">Load Test Data</button>
+                <button onclick="runBasicQuery()">Basic Query</button>
+                <button onclick="runPointQuery()">Point Query</button>
+                <button onclick="runBenchmark()">Performance Benchmark</button>
+                <button onclick="clearOutput()">Clear Output</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div id="docCount" class="stat-value">0</div>
+                    <div>Documents</div>
+                </div>
+                <div class="stat-card">
+                    <div id="queryTime" class="stat-value">-</div>
+                    <div>Last Query (ms)</div>
+                </div>
+                <div class="stat-card">
+                    <div id="resultCount" class="stat-value">-</div>
+                    <div>Results</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Query Output</h2>
+            <div id="output">Ready to run spatial queries...
+
+Try these commands:
+1. Load test data (Massachusetts towns)
+2. Run a basic spatial query
+3. Test point queries
+4. Run performance benchmarks
+
+All queries use the modern GeoPouch API with promises.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Interactive Map</h2>
+            <div id="map">
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: rgba(255,255,255,0.6);">
+                    Map visualization would appear here
+                    <br>(Leaflet integration coming soon)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load PouchDB and GeoPouch -->
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
+    <script type="module">
+        import Spatial from '../index.js';
+
+        // Plugin registration
+        PouchDB.plugin(Spatial);
+
+        let db;
+        let testData = null;
+
+        // Initialize database
+        async function initDB() {
+            if (db) await db.destroy();
+            db = new PouchDB('geopouch-playground', { adapter: 'memory' });
+            updateStats();
+        }
+
+        // Load test data (simulated - you'd fetch towns.json in real implementation)
+        window.loadTestData = async function() {
+            log('Loading test data...', 'info');
+
+            try {
+                // Simulate Massachusetts towns data
+                const towns = [
+                    { _id: 'BOSTON', geometry: { type: 'Point', coordinates: [-71.0589, 42.3601] }},
+                    { _id: 'CAMBRIDGE', geometry: { type: 'Point', coordinates: [-71.1056, 42.3736] }},
+                    { _id: 'SOMERVILLE', geometry: { type: 'Point', coordinates: [-71.0993, 42.3876] }},
+                    { _id: 'QUINCY', geometry: { type: 'Point', coordinates: [-70.98495, 42.24867] }},
+                    { _id: 'NEWTON', geometry: { type: 'Point', coordinates: [-71.2092, 42.3370] }},
+                ];
+
+                await initDB();
+                await db.bulkDocs(towns);
+
+                log(`Successfully loaded ${towns.length} test documents`, 'success');
+                updateStats();
+
+            } catch (error) {
+                log(`Error loading test data: ${error.message}`, 'error');
+            }
+        };
+
+        // Run basic spatial query
+        window.runBasicQuery = async function() {
+            if (!db) {
+                log('Please load test data first', 'error');
+                return;
+            }
+
+            log('Running basic spatial query...', 'info');
+            const startTime = Date.now();
+
+            try {
+                const result = await db.spatial(
+                    function(doc) { emit(doc.geometry); },
+                    [[-71.2, 42.2], [-71.0, 42.4]]
+                );
+
+                const elapsed = Date.now() - startTime;
+
+                log(`Query completed in ${elapsed}ms`, 'success');
+                log(`Found ${result.length} results:`, 'info');
+                result.forEach(item => {
+                    log(`- ${item.id} (bbox: ${JSON.stringify(item.bboxen)})`, 'data');
+                });
+
+                updateStats(elapsed, result.length);
+
+            } catch (error) {
+                log(`Query error: ${error.message}`, 'error');
+            }
+        };
+
+        // Run point query
+        window.runPointQuery = async function() {
+            if (!db) {
+                log('Please load test data first', 'error');
+                return;
+            }
+
+            log('Running point query for Quincy...', 'info');
+            const startTime = Date.now();
+
+            try {
+                const result = await db.spatial(
+                    function(doc) { emit(doc.geometry); },
+                    [-70.98495, 42.24867, -70.98495, 42.24867]
+                );
+
+                const elapsed = Date.now() - startTime;
+
+                log(`Point query completed in ${elapsed}ms`, 'success');
+                log(`Found ${result.length} results:`, 'info');
+                result.forEach(item => {
+                    log(`- ${item.id}`, 'data');
+                });
+
+                updateStats(elapsed, result.length);
+
+            } catch (error) {
+                log(`Point query error: ${error.message}`, 'error');
+            }
+        };
+
+        // Run performance benchmark
+        window.runBenchmark = async function() {
+            log('Running performance benchmark...', 'info');
+
+            try {
+                await initDB();
+
+                // Generate large dataset
+                const docs = Array.from({ length: 1000 }, (_, i) => ({
+                    _id: `doc_${i}`,
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [
+                            Math.random() * 2 - 72, // Around Boston longitude
+                            Math.random() * 2 + 41   // Around Boston latitude
+                        ]
+                    }
+                }));
+
+                log('Inserting 1000 documents...', 'info');
+                const insertStart = Date.now();
+                await db.bulkDocs(docs);
+                const insertTime = Date.now() - insertStart;
+
+                log(`Insert completed in ${insertTime}ms`, 'success');
+
+                // Query benchmark
+                log('Running spatial query benchmark...', 'info');
+                const queryStart = Date.now();
+
+                const result = await db.spatial(
+                    function(doc) { emit(doc.geometry); },
+                    [[-72, 41], [-71, 42]]
+                );
+
+                const queryTime = Date.now() - queryStart;
+
+                log(`Benchmark completed!`, 'success');
+                log(`- Insert time: ${insertTime}ms (${(1000/insertTime*1000).toFixed(0)} docs/sec)`, 'data');
+                log(`- Query time: ${queryTime}ms`, 'data');
+                log(`- Results found: ${result.length}`, 'data');
+
+                updateStats(queryTime, result.length);
+
+            } catch (error) {
+                log(`Benchmark error: ${error.message}`, 'error');
+            }
+        };
+
+        window.clearOutput = function() {
+            document.getElementById('output').textContent = 'Output cleared.\n';
+        };
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'data' ? '📊' : 'ℹ️';
+
+            output.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function updateStats(queryTime = null, resultCount = null) {
+            try {
+                const info = db ? await db.info() : { doc_count: 0 };
+                document.getElementById('docCount').textContent = info.doc_count || 0;
+
+                if (queryTime !== null) {
+                    document.getElementById('queryTime').textContent = queryTime;
+                }
+
+                if (resultCount !== null) {
+                    document.getElementById('resultCount').textContent = resultCount;
+                }
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // Initialize on load
+        initDB();
+
+        // Make functions globally available
+        window.db = db;
+
+        log('GeoPouch development playground ready! 🚀', 'success');
+        log('Database initialized with in-memory adapter', 'info');
+    </script>
+</body>
+</html>

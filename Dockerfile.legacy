@@ -1,0 +1,28 @@
+# Era-correct Docker container for GeoPouch legacy testing
+# Use alpine for smaller size and try to avoid compilation issues
+FROM node:8.17.0-alpine
+
+# Install build essentials for native modules
+RUN apk add --no-cache \
+    python2 \
+    python2-dev \
+    make \
+    g++ \
+    gcc \
+    libc-dev \
+    && ln -sf /usr/bin/python2 /usr/bin/python
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install dependencies in era-correct environment
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Default command
+CMD ["npm", "test"]

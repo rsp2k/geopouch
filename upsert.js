@@ -1,5 +1,4 @@
 'use strict';
-var Promise = require('lie');
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
 // the diffFun tells us what delta to apply to the doc.  it either returns

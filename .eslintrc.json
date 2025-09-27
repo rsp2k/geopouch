@@ -1,0 +1,23 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "args": "none" }],
+    "no-console": "off",
+    "prefer-const": "error",
+    "no-var": "error"
+  },
+  "globals": {
+    "emit": "readonly",
+    "global": "readonly"
+  }
+}

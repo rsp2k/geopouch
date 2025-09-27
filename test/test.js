@@ -1,17 +1,17 @@
 
-var Pouch = require('pouchdb');
-var Spatial = require('../');
+const Pouch = require('pouchdb');
+const Spatial = require('../');
 Pouch.plugin(Spatial);
-var should = require('chai').should();
-var towns = require('./towns.json');
-var memdown = require('memdown');
+const should = require('chai').should();
+const towns = require('./towns.json');
+const memdown = require('memdown');
 testit('level', {});
 if (!process.browser) {
   testit('memory', {db: memdown});
 }
 function testit(name, opts) {
   describe('Spatial ' + name, function () {
-    var db, db2;
+    let db, db2;
     beforeEach(function (done) {
       db = new Pouch('testy', opts);
       done();
