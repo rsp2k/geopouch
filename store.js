@@ -27,7 +27,7 @@ Store.prototype.del = function(key, cb) {
   const self = this;
   this.db.get(key).then(function (doc) {
     return self.db.remove(doc);
-  }).then(function (r) {
+  }).then(function (_r) {
     cb();
   }, function (e) {
     cb(e);

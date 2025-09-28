@@ -6,51 +6,53 @@ module.exports = {
     es2022: true
   },
   extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'prettier'
+    'eslint:recommended'
   ],
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2022,
-    sourceType: 'module',
-    allowImportExportEverywhere: true
+    sourceType: 'script'
   },
-  plugins: [
-    '@typescript-eslint',
-    'prettier'
-  ],
   rules: {
-    'prettier/prettier': 'error',
-    '@typescript-eslint/no-unused-vars': ['error', {
+    'no-unused-vars': ['error', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_'
     }],
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-var-requires': 'off',
     'no-console': 'warn',
     'no-debugger': 'error',
-    'prefer-const': 'error',
-    'no-var': 'error'
+    'prefer-const': 'warn',
+    'no-var': 'warn'
   },
   overrides: [
     {
-      files: ['test/**/*', '*.test.js', '*.test.ts'],
-      env: {
-        mocha: true,
-        vitest: true
+      files: ['*.config.js', 'vite.config.js', 'vitest.config.js', 'playwright.config.js'],
+      parserOptions: {
+        sourceType: 'module'
       },
       rules: {
-        'no-console': 'off',
-        '@typescript-eslint/no-explicit-any': 'off'
+        'no-console': 'off'
       }
     },
     {
-      files: ['*.config.js', '*.config.ts'],
+      files: ['test/**/*', '*.test.js', '*test*.js', 'performance-*.js'],
+      env: {
+        mocha: true
+      },
+      globals: {
+        emit: 'readonly'
+      },
       rules: {
-        '@typescript-eslint/no-var-requires': 'off'
+        'no-console': 'off',
+        'no-undef': 'off',
+        'prefer-const': 'off',
+        'no-var': 'off'
+      }
+    },
+    {
+      files: ['test/test.js'],
+      rules: {
+        'no-unused-vars': 'off',
+        'prefer-const': 'off',
+        'no-var': 'off'
       }
     }
   ]

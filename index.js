@@ -31,15 +31,15 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
     cb = opts;
     opts = {};
   }
-  let store, rawStore;
-  let viewID;
+  let store, _rawStore;
+  let _viewID;
   return makeFunc(db, fun).then(function (func) {
     if (typeof fun === 'function') {
       viewName = 'temporary';
       temporary = true;
     } else {
       viewName = func;
-      viewID = '_design/' + fun.split('/')[0];
+      _viewID = '_design/' + fun.split('/')[0];
     }
     const view = createView(db, viewName, temporary, fun);
     const updated = view.then(updateIndex(func));
@@ -190,7 +190,7 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
   }
 }
 function makeFunc (db, fun) {
-  return new Promise (function (resolve, reject) {
+  return new Promise (function (resolve, _reject) {
     if (typeof fun === 'function') {
       return resolve(new Function ('doc', 'emit', 'const func = (' + fun.toString().replace(/;\s*$/,'') + ');func(doc);'));
     }

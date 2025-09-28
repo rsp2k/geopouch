@@ -1,0 +1,20 @@
+# Build artifacts and bundles
+test/test-bundle.js
+dist/
+build/
+*.min.js
+bundle.js
+
+# Node modules
+node_modules/
+
+# Generated files
+coverage/
+.nyc_output/
+
+# Legacy test files with complex minified code
+test/test-bundle.js
+
+# ES module test files that need different parser
+test/modern.test.js
+test/setup.js

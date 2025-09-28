@@ -13,7 +13,7 @@ function upsert(db, docId, diffFun) {
         }
         return fulfill(tryAndPut(db, diffFun({_id : docId}), diffFun));
       }
-      var newDoc = diffFun(doc);
+      const newDoc = diffFun(doc);
       if (!newDoc) {
         return fulfill(doc);
       }

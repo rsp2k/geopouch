@@ -19,20 +19,18 @@ async function testPouchDBCompatibility() {
   let tests = 0;
   let passed = 0;
 
-  function test(name, fn) {
-    return new Promise(async (resolve) => {
-      tests++;
-      console.log(`🧪 ${tests}. ${name}`);
-      try {
-        await fn();
-        passed++;
-        console.log('   ✅ PASS\n');
-        resolve(true);
-      } catch (error) {
-        console.log(`   ❌ FAIL: ${error.message}\n`);
-        resolve(false);
-      }
-    });
+  async function test(name, fn) {
+    tests++;
+    console.log(`🧪 ${tests}. ${name}`);
+    try {
+      await fn();
+      passed++;
+      console.log('   ✅ PASS\n');
+      return true;
+    } catch (error) {
+      console.log(`   ❌ FAIL: ${error.message}\n`);
+      return false;
+    }
   }
 
   // Test 1: registerDependentDatabase API (critical for spatial indexing)

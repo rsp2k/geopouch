@@ -4,7 +4,7 @@
  */
 
 const fs = require('fs');
-const path = require('path');
+const _path = require('path');
 
 console.log('🧪 GeoPouch v3.0.0 Simple Compatibility Test');
 console.log('============================================\n');

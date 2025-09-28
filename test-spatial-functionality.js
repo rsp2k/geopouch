@@ -19,20 +19,18 @@ async function runTests() {
   let testCount = 0;
   let passCount = 0;
 
-  function test(name, fn) {
-    return new Promise(async (resolve) => {
-      testCount++;
-      console.log(`🔬 Test ${testCount}: ${name}`);
-      try {
-        await fn();
-        passCount++;
-        console.log(`   ✅ PASS\n`);
-        resolve(true);
-      } catch (error) {
-        console.log(`   ❌ FAIL: ${error.message}\n`);
-        resolve(false);
-      }
-    });
+  async function test(name, fn) {
+    testCount++;
+    console.log(`🔬 Test ${testCount}: ${name}`);
+    try {
+      await fn();
+      passCount++;
+      console.log(`   ✅ PASS\n`);
+      return true;
+    } catch (error) {
+      console.log(`   ❌ FAIL: ${error.message}\n`);
+      return false;
+    }
   }
 
   // Test 1: Basic Plugin Loading
