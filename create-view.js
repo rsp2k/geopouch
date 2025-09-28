@@ -68,15 +68,13 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
           }
         }).then(function (lastSeqDoc) {
           view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
-          let viewID;
-
           sourceDB._cachedViews = sourceDB._cachedViews || {};
           sourceDB._cachedViews[viewSignature] = view;
           view.db.on('destroyed', function () {
             delete sourceDB._cachedViews[viewSignature];
             upsert(sourceDB, '_local/gcviews', cleanUpView);
           });
-          viewID = '_design/' + viewName.split('/')[0];
+          const viewID = '_design/' + viewName.split('/')[0];
           sourceDB._viewListeners = sourceDB._viewListeners || {};
           if (!sourceDB._viewListeners[viewID]) {
             sourceDB.info().then(function (info) {

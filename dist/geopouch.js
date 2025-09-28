@@ -69,15 +69,13 @@ module.exports = function (sourceDB, viewCode, temporary, viewName) {
           }
         }).then(function (lastSeqDoc) {
           view.seq = lastSeqDoc ? lastSeqDoc.seq : 0;
-          let viewID;
-
           sourceDB._cachedViews = sourceDB._cachedViews || {};
           sourceDB._cachedViews[viewSignature] = view;
           view.db.on('destroyed', function () {
             delete sourceDB._cachedViews[viewSignature];
             upsert(sourceDB, '_local/gcviews', cleanUpView);
           });
-          viewID = '_design/' + viewName.split('/')[0];
+          const viewID = '_design/' + viewName.split('/')[0];
           sourceDB._viewListeners = sourceDB._viewListeners || {};
           if (!sourceDB._viewListeners[viewID]) {
             sourceDB.info().then(function (info) {
@@ -136,15 +134,15 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
     cb = opts;
     opts = {};
   }
-  let store, rawStore;
-  let viewID;
+  let store, _rawStore;
+  let _viewID;
   return makeFunc(db, fun).then(function (func) {
     if (typeof fun === 'function') {
       viewName = 'temporary';
       temporary = true;
     } else {
       viewName = func;
-      viewID = '_design/' + fun.split('/')[0];
+      _viewID = '_design/' + fun.split('/')[0];
     }
     const view = createView(db, viewName, temporary, fun);
     const updated = view.then(updateIndex(func));
@@ -295,7 +293,7 @@ function spatial(fun, bbox, opts, cb, /*only needed if people use 2 bboxen-->*/c
   }
 }
 function makeFunc (db, fun) {
-  return new Promise (function (resolve, reject) {
+  return new Promise (function (resolve, _reject) {
     if (typeof fun === 'function') {
       return resolve(new Function ('doc', 'emit', 'const func = (' + fun.toString().replace(/;\s*$/,'') + ');func(doc);'));
     }
@@ -18585,7 +18583,7 @@ Store.prototype.del = function(key, cb) {
   const self = this;
   this.db.get(key).then(function (doc) {
     return self.db.remove(doc);
-  }).then(function (r) {
+  }).then(function (_r) {
     cb();
   }, function (e) {
     cb(e);
@@ -18628,7 +18626,7 @@ function upsert(db, docId, diffFun) {
         }
         return fulfill(tryAndPut(db, diffFun({_id : docId}), diffFun));
       }
-      var newDoc = diffFun(doc);
+      const newDoc = diffFun(doc);
       if (!newDoc) {
         return fulfill(doc);
       }
