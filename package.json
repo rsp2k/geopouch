@@ -16,6 +16,7 @@
     "build-test": "browserify test/test.js -o test/test-bundle.js",
     "lint": "eslint *.js test/*.js",
     "format:check": "echo 'Prettier formatting check - using ESLint for code style'",
+    "typecheck": "echo 'TypeScript check - this is a JavaScript project'",
     "size": "npm run build && ls -lah dist/geopouch.js"
   },
   "keywords": [

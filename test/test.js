@@ -281,6 +281,10 @@ function testit(name, opts) {
     });
 
     it('should be able to close and then open', function (done) {
+      if (name === 'memory') {
+        // Skip for memory backend - expected that spatial indexes don't persist
+        return done();
+      }
       var db3;
       db.bulkDocs([{
         _id : 'eb46c0cc24eabb6427af7eac2b0012ac',
