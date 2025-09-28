@@ -44,7 +44,6 @@ Thumbs.db
 # Legacy build artifacts
 test/test-bundle.js
 
-# Package manager
-package-lock.json
+# Package manager (keep package-lock.json for reproducible builds)
 yarn.lock
 pnpm-lock.yaml
