@@ -10,6 +10,7 @@
   "scripts": {
     "test": "mocha test/test.js",
     "test:unit": "mocha test/test.js",
+    "test:legacy": "mocha test/test.js",
     "test:browser": "npm run build-test && echo 'Browser tests require manual execution in browser'",
     "test-coverage": "nyc mocha test/test.js",
     "build": "mkdir -p dist && browserify index.js -s geopouch -o dist/geopouch.js",
